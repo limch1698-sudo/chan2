@@ -1,11 +1,11 @@
 [package]
-name = "chan1"
+name = "rustdesk"
 version = "1.4.9"
 authors = ["chan <chan@example.com>"]
 edition = "2021"
 build= "build.rs"
 description = "chan1Desktop"
-default-run = "chan1"
+default-run = "rustdesk"
 rust-version = "1.75"
 
 [lib]
