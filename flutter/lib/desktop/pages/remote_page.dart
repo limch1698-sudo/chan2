@@ -234,16 +234,12 @@ class _RemotePageState extends State<RemotePage>
       if (call.method == 'global_event') {
         try {
           final Map<String, dynamic> evt = jsonDecode(call.arguments);
-          // 이벤트 이름이 맞고, 이름표(peer_id)가 현재 창의 ID(widget.id)와 일치할 때만 작동!
-          if (evt['name'] == 'audio_playing_status' && evt['peer_id'] == widget.id) {
+          // peer_id 체크를 없애고, 일단 신호가 오면 내 창의 스피커를 켭니다.
+          if (evt['name'] == 'audio_playing_status') {
             
-            // 스피커 켜기
             stateGlobal.setAudioPlaying(widget.id, true);
-            
-            // 기존 타이머 취소
             _audioResetTimer?.cancel();
             
-            // 1초 뒤에 스피커 끄기 (1초 동안 새로운 신호가 없으면)
             _audioResetTimer = Timer(const Duration(seconds: 1), () {
               stateGlobal.setAudioPlaying(widget.id, false);
             });
@@ -255,7 +251,6 @@ class _RemotePageState extends State<RemotePage>
     });
     // ----------------------------------
   }
-
 
   Future<void> _normalizeWaylandKeyboardModeIfNeeded() async {
     if (!mounted ||
