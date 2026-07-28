@@ -230,25 +230,16 @@ class _RemotePageState extends State<RemotePage>
 
     // --- 오디오 이벤트 수신 로직 (V2) ---
     // RustDesk의 글로벌 이벤트 스트림을 직접 낚아챕니다.
-    rustDeskWinManager.setMethodHandler((call, fromWindowId) async {
-      if (call.method == 'global_event') {
-        try {
-          final Map<String, dynamic> evt = jsonDecode(call.arguments);
-          // peer_id 체크를 없애고, 일단 신호가 오면 내 창의 스피커를 켭니다.
-          if (evt['name'] == 'audio_playing_status') {
-            
-            stateGlobal.setAudioPlaying(widget.id, true);
-            _audioResetTimer?.cancel();
-            
-            _audioResetTimer = Timer(const Duration(seconds: 1), () {
-              stateGlobal.setAudioPlaying(widget.id, false);
-            });
-          }
-        } catch (e) {
-          debugPrint("Audio event parse error: $e");
-        }
+    // --- 오디오 이벤트 수신 로직 (안전한 V4 폴링 방식) ---
+    _audioResetTimer?.cancel();
+    _audioResetTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (mounted) {
+        bool isPlaying = bind.sessionIsAudioActiveSync(sessionId: widget.id);
+        stateGlobal.setAudioPlaying(widget.id, isPlaying);
       }
     });
+    // ----------------------------------
+  } // <--- initState() 함수가 끝나는 괄호입니다.
     // ----------------------------------
   }
 
