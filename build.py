@@ -403,6 +403,10 @@ def build_flutter_windows(version, features, skip_portable_pack):
             print("cargo build failed, please check rust source code.")
             exit(-1)
     os.chdir('flutter')
+    # --- 빌드 전 패키지 꼬임 해결을 위한 청소 명령어 추가 ---
+    system2('flutter clean')
+    system2('flutter pub get')
+    # ---------------------------------------------------------
     system2('flutter build windows --release')
     system2('cp -r build/windows/x64/runner/Release/chan1/* build/windows/x64/runner/Release/ || true')
     os.chdir('..')
