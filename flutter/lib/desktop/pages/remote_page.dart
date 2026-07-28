@@ -224,9 +224,6 @@ class _RemotePageState extends State<RemotePage>
     if (_ffi.ffiModel.pi.isSet.value) {
       unawaited(_normalizeWaylandKeyboardModeIfNeeded());
     }
-    if (_ffi.ffiModel.pi.isSet.value) {
-      unawaited(_normalizeWaylandKeyboardModeIfNeeded());
-    }
 
     // --- 오디오 이벤트 수신 로직 (V2) ---
     // RustDesk의 글로벌 이벤트 스트림을 직접 낚아챕니다.
