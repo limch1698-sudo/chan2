@@ -247,7 +247,6 @@ class DesktopTab extends StatefulWidget {
   final Widget? tail;
   final Widget? leading;
   final Future<bool> Function()? onWindowCloseButton;
-  final Future<bool> Function()? onWindowCloseButton;
   final TabBuilder? tabBuilder;
   final LabelGetter? labelGetter;
   final double? maxLabelWidth;
