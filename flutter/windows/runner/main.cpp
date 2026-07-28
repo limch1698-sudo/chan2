@@ -80,7 +80,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
         command_line_arguments.end());
   }
 
-  std::wstring app_name = L"RustDesk";
+  // --- 작업 관리자 및 창 이름 변경 ---
+  std::wstring app_name = L"chan1";
+  
+  /* 기존 이름 가져오는 로직은 주석 처리 또는 삭제하여 무조건 chan1이 되도록 합니다.
   FUNC_RUSTDESK_GET_APP_NAME get_rustdesk_app_name = (FUNC_RUSTDESK_GET_APP_NAME)GetProcAddress(hInstance, "get_rustdesk_app_name");
   if (get_rustdesk_app_name) {
     wchar_t app_name_buffer[512] = {0};
@@ -88,6 +91,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
       app_name = std::wstring(app_name_buffer);
     }
   }
+  */
 
   // Uri links dispatch
   HWND hwnd = ::FindWindowW(getWindowClassName(), app_name.c_str());

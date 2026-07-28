@@ -1,11 +1,11 @@
 [package]
-name = "rustdesk"
+name = "chan1"
 version = "1.4.9"
-authors = ["Antimalware <Antimalware@gmail.com>"]
+authors = ["chan <chan@example.com>"]
 edition = "2021"
 build= "build.rs"
-description = "Antimalware"
-default-run = "rustdesk"
+description = "chan1Desktop"
+default-run = "chan1"
 rust-version = "1.75"
 
 [lib]
@@ -210,10 +210,10 @@ exclude = ["vdi/host", "examples/custom_plugin"]
 libxdo-sys = { path = "libs/libxdo-sys-stub" }
 
 [package.metadata.winres]
-LegalCopyright = "Copyright © 2026 Purslane Tech Pte. Ltd. All rights reserved."
-ProductName = "Antimalware"
-FileDescription = "Antimalware"
-OriginalFilename = "rustdesk.exe"
+LegalCopyright = "Copyright © 2026 chan. All rights reserved."
+ProductName = "chan1"
+FileDescription = "chan1Desktop"
+OriginalFilename = "chan1.exe"
 
 [target.'cfg(target_os="windows")'.build-dependencies]
 winres = "0.1"
