@@ -228,18 +228,32 @@ class _RemotePageState extends State<RemotePage>
       unawaited(_normalizeWaylandKeyboardModeIfNeeded());
     }
 
-    // --- 오디오 이벤트 수신 로직 추가 시작 ---
-    // RustDesk의 글로벌 이벤트 스트림을 감지합니다.
-    ever(stateGlobal.audioPlayingStates, (_) {
-      // 기존 타이머 취소
-      _audioResetTimer?.cancel();
-      
-      // 1초 동안 새로운 오디오 신호가 없으면 스피커 아이콘을 끕니다.
-      _audioResetTimer = Timer(const Duration(seconds: 1), () {
-        stateGlobal.setAudioPlaying(widget.id, false);
-      });
+    // --- 오디오 이벤트 수신 로직 (V2) ---
+    // RustDesk의 글로벌 이벤트 스트림을 직접 낚아챕니다.
+    rustDeskWinManager.setMethodHandler((call, fromWindowId) async {
+      if (call.method == 'global_event') {
+        try {
+          final Map<String, dynamic> evt = jsonDecode(call.arguments);
+          // 이벤트 이름이 맞고, 이름표(peer_id)가 현재 창의 ID(widget.id)와 일치할 때만 작동!
+          if (evt['name'] == 'audio_playing_status' && evt['peer_id'] == widget.id) {
+            
+            // 스피커 켜기
+            stateGlobal.setAudioPlaying(widget.id, true);
+            
+            // 기존 타이머 취소
+            _audioResetTimer?.cancel();
+            
+            // 1초 뒤에 스피커 끄기 (1초 동안 새로운 신호가 없으면)
+            _audioResetTimer = Timer(const Duration(seconds: 1), () {
+              stateGlobal.setAudioPlaying(widget.id, false);
+            });
+          }
+        } catch (e) {
+          debugPrint("Audio event parse error: $e");
+        }
+      }
     });
-    // --- 오디오 이벤트 수신 로직 추가 끝 ---    
+    // ----------------------------------
   }
 
 

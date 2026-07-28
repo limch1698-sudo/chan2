@@ -1421,26 +1421,40 @@ impl AudioHandler {
     /// Handle audio frame and play it.
     #[inline]
     pub fn handle_frame(&mut self, frame: AudioFrame) {
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as i64;
+            
         crate::client::LAST_AUDIO_TS.store(
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_millis() as i64,
+            now,
             std::sync::atomic::Ordering::Relaxed,
         );
 
-        // --- 스피커 아이콘 표시를 위한 이벤트 전송 추가 시작 ---
+        // --- 스피커 아이콘 이벤트 전송 (V2: 브레이크 & 이름표 장착) ---
         #[cfg(feature = "flutter")]
         {
-            let evt = std::collections::HashMap::from([
-                ("name", "audio_playing_status".to_string()),
-                ("is_playing", "true".to_string()),
-            ]);
-            if let Ok(evt_json) = serde_json::to_string(&evt) {
-                crate::flutter::push_global_event(crate::flutter::APP_TYPE_MAIN, evt_json);
+            use std::sync::atomic::{AtomicI64, Ordering};
+            // 0.5초(500ms) 쓰로틀링을 위한 정적 변수 (브레이크 역할)
+            static LAST_EVENT_TIME: AtomicI64 = AtomicI64::new(0);
+            
+            let last_time = LAST_EVENT_TIME.load(Ordering::Relaxed);
+            // 마지막으로 이벤트를 보낸 지 500ms가 지났을 때만 보냄 (렉 방지)
+            if now - last_time > 500 {
+                LAST_EVENT_TIME.store(now, Ordering::Relaxed);
+                
+                // self.peer_id를 함께 보내서 누구한테서 난 소리인지 명확히 함 (이름표 장착)
+                let evt = std::collections::HashMap::from([
+                    ("name", "audio_playing_status".to_string()),
+                    ("is_playing", "true".to_string()),
+                    ("peer_id", self.peer_id.clone()), 
+                ]);
+                if let Ok(evt_json) = serde_json::to_string(&evt) {
+                    crate::flutter::push_global_event(crate::flutter::APP_TYPE_MAIN, evt_json);
+                }
             }
         }
-        // --- 스피커 아이콘 표시를 위한 이벤트 전송 추가 끝 ---
+        // -------------------------------------------------------------
 
         #[cfg(not(target_os = "linux"))]
         if self.audio_stream.is_none() || !self.ready.lock().unwrap().clone() {
